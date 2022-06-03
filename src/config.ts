@@ -3,16 +3,20 @@ type Hosts = {
   [host: string]: {
     alias: string
     key: string
+    basicPassword: string
+    basicUser: string
   }
 }
 export type Config = {
   port: number
   token: string
-  signingSecret: string
+  signingSecret: string,
   hosts: Hosts
   browser: Engine
   sleep: number
   browserTimeout: number
+  basicPassword: string
+  basicUser: string
 }
 
 let hosts: Hosts
@@ -22,6 +26,8 @@ if (process.env.REDASH_HOST) {
       [process.env.REDASH_HOST!]: {
         alias: process.env.REDASH_HOST_ALIAS!,
         key: process.env.REDASH_API_KEY!,
+        basicPassword: process.env.REDASH_BASIC_PASSWORD!,
+        basicUser:  process.env.REDASH_BASIC_USER!,
       },
     }
   } else {
@@ -29,6 +35,8 @@ if (process.env.REDASH_HOST) {
       [process.env.REDASH_HOST!]: {
         alias: process.env.REDASH_HOST!,
         key: process.env.REDASH_API_KEY!,
+        basicPassword: process.env.REDASH_BASIC_PASSWORD!,
+        basicUser:  process.env.REDASH_BASIC_USER!,
       },
     }
   }
@@ -36,14 +44,17 @@ if (process.env.REDASH_HOST) {
   hosts = (process.env.REDASH_HOSTS_AND_API_KEYS || '')
     .split(',')
     .reduce((m, host_and_key) => {
-      let [host, alias, key] = host_and_key.split(';')
+      let [host, alias, key,basicPassword ,basicUser] = host_and_key.split(';')
       if (!key) {
         key = alias
         alias = host
+        basicPassword = basicPassword
+        basicUser = basicUser
+
       }
-      m[host] = { alias, key }
+      m[host] = { alias, key,basicPassword,basicUser  }
       return m
-    }, {} as Record<string, { alias: string; key: string }>)
+    }, {} as Record<string, { alias: string; key: string ,basicPassword:string ,basicUser:string }>)
 }
 
 export const config: Config = {
@@ -58,4 +69,6 @@ export const config: Config = {
     ? parseFloat(process.env.SLEEP_TIME)
     : 10000,
   hosts,
+  basicPassword: process.env.REDASH_BASIC_PASSWORD!,
+  basicUser:  process.env.REDASH_BASIC_USER!,
 }

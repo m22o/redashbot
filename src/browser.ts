@@ -14,9 +14,14 @@ async function launch(engine: Engine, options?: LaunchOptions) {
 export class Browser {
   browser: playwright.Browser | null
   options: LaunchOptions
+  basicPassword: string
+  basicUser: string
 
-  constructor(options?: LaunchOptions) {
+  constructor(basicPassword: string,basicUser: string,options?: LaunchOptions,      ) {
     this.browser = null
+    this.basicPassword = basicPassword
+    this.basicUser = basicUser
+
     this.options = options || {
       args: ['--disable-dev-shm-usage', '--no-sandbox'],
     }
@@ -26,10 +31,17 @@ export class Browser {
     if (!this.browser) {
       this.browser = await launch(config.browser, this.options)
     }
-
-    const page = await this.browser.newPage()
+    const context = await this.browser.newContext({
+      httpCredentials: {
+        username: this.basicUser,
+        password: this.basicPassword
+      },
+    });
+    const page = await context.newPage();
+    
     page.setViewportSize({ width: 1024, height: 360 })
     await page.goto(url, { timeout: config.browserTimeout })
+
     try {
       const waitFor = url.includes('/query/') ? /results/ : /events/
       await page.waitForResponse(waitFor, { timeout: config.browserTimeout })

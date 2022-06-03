@@ -22,9 +22,9 @@ const handlers: [path: string, handler: Handler][] = [
 export function createApp(config: Config & AppOptions) {
   const app = new BoltApp(config)
 
-  const browser = new Browser()
-  for (const [host, { alias, key: apiKey }] of Object.entries(config.hosts)) {
-    const redash = new Redash({ host, apiKey, alias })
+  const browser = new Browser(config.basicUser,config.basicPassword)
+  for (const [host, { alias, key: apiKey, basicPassword: basicPassword,basicUser: basicUser}] of Object.entries(config.hosts)) {
+    const redash = new Redash({ host, apiKey, alias, basicPassword, basicUser })
     const ctx = { redash, browser }
     for (const [path, handler] of handlers) {
       app.message(new RegExp(`${host}${path}`), mention(), handler(ctx))
@@ -35,8 +35,8 @@ export function createApp(config: Config & AppOptions) {
     const { ack } = args
     await ack()
 
-    for (const [host, { alias, key: apiKey }] of Object.entries(config.hosts)) {
-      const redash = new Redash({ host, apiKey, alias })
+    for (const [host, { alias, key: apiKey,basicPassword: basicPassword,basicUser: basicUser }] of Object.entries(config.hosts)) {
+      const redash = new Redash({ host, apiKey, alias,basicPassword ,basicUser})
       const ctx = { redash, browser }
       for (const [path, handler] of handlers) {
         const { command } = args
@@ -133,10 +133,10 @@ export function createApp(config: Config & AppOptions) {
       const url = inputs.url.value
       const channel = inputs.channel.value
 
-      for (const [host, { alias, key: apiKey }] of Object.entries(
+      for (const [host, { alias, key: apiKey, basicPassword ,basicUser}] of Object.entries(
         config.hosts
       )) {
-        const redash = new Redash({ host, apiKey, alias })
+        const redash = new Redash({ host, apiKey, alias, basicPassword ,basicUser})
         const ctx = { redash, browser }
         for (const [path, handler] of handlers) {
           const matches = new RegExp(`${host}${path}`).exec(url)

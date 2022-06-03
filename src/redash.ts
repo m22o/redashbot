@@ -25,18 +25,29 @@ export class Redash {
   host: string
   apiKey: string
   alias: string
+  basicPassword: string
+  basicUser: string
   constructor({
     host,
     apiKey,
     alias,
+    basicPassword,
+    basicUser
   }: {
     host: string
     apiKey: string
     alias: string
+    basicPassword: string
+    basicUser: string
+
+
   }) {
     this.alias = alias
     this.host = host
     this.apiKey = apiKey
+    this.basicPassword = basicPassword
+    this.basicUser = basicUser
+
   }
 
   async getQuery(id: string): Promise<Query> {
@@ -44,6 +55,11 @@ export class Redash {
       params: {
         api_key: this.apiKey,
       },
+      auth: {
+        username: this.basicUser,
+        password: this.basicPassword
+      },
+
     })
     return res.data
   }
@@ -54,6 +70,10 @@ export class Redash {
       {
         params: {
           api_key: this.apiKey,
+        },
+        auth: {
+          username: this.basicUser,
+          password: this.basicPassword
         },
       }
     )
@@ -73,6 +93,10 @@ export class Redash {
     const res = await axios.get(`${this.alias}/api/dashboards/${id}`, {
       params: {
         api_key: this.apiKey,
+      },
+      auth: {
+        username: this.basicUser,
+        password: this.basicPassword
       },
     })
     return res.data
